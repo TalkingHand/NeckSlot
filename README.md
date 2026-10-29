@@ -11,7 +11,7 @@ Items: everything worn on the mask, mask-and-eyes, full-mask or full-hat locatio
 
 ## Install
 
-- Steam Workshop: (link added after the first upload)
+- Steam Workshop: https://steamcommunity.com/sharedfiles/filedetails/?id=3829684092
 - Manual: copy `Contents/mods/NeckSlot` to `%USERPROFILE%\Zomboid\mods\`.
 
 ## Compatibility
