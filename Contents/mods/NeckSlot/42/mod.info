@@ -1,0 +1,8 @@
+name=Neck Slot
+id=NeckSlot
+description=An always-present Neck hotbar slot for masks and helmets. Its key puts the hung item on, or takes it off and hangs it back; wearing it swaps out the mask or helmet it replaces.
+poster=poster.png
+author=TalkingHand
+url=https://github.com/TalkingHand/NeckSlot
+modversion=1.0.0
+versionMin=42.0

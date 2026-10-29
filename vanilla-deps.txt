@@ -1,0 +1,47 @@
+# NeckSlot: vanilla dependencies (format: _guide/README.md "9. 게임 업데이트 대응")
+# checked: 42.21.0 (pzt run 2026-10-30, 33 PASS)
+#
+# Mod files (Contents/mods/NeckSlot/42/media/lua): IT = shared/NeckSlot_Items.lua,
+# HB = client/NeckSlot_Hotbar.lua. Vanilla paths are relative to media/lua.
+#
+# Riskiest (break silently):
+#  1. ISHotbar:refresh drops slots no worn item provides (haveThisSlot(type, newSlots)); the always-on slot relies on it
+#  2. attached items are drawn with InventoryItem StaticModel only (ModelManager); hung masks/helmets have none, so nothing is drawn
+#  3. ISHotbar:update hides an attached item while isEquipped (worn counts) and re-attaches it after
+#
+# kind	target	note
+
+## Wrapped vanilla functions (file load, client)
+lua-wrap	ISHotbar:haveThisSlot	HB; client/Hotbar/ISHotbar.lua:395. Original called except for the neck slot type against a list other than availableSlot (refresh's newSlots)
+lua-wrap	ISHotbar:refresh	HB; ISHotbar.lua:433. Original called, then the neck slot is appended if missing (savePosition, setWidth, reloadIcons)
+lua-wrap	ISHotbar:activateSlot	HB; ISHotbar.lua:548. Original NOT called for the neck slot holding a neck item (wear/unwear instead)
+lua-wrap	ISHotbar:update	HB; ISHotbar.lua:223. Original called, then the pending swap is finished
+
+## Vanilla Lua called / fields
+lua-file	Hotbar/ISHotbarAttachDefinition	HB require; slot def appended to the ISHotbarAttachDefinition array (type, name, animset, attachments)
+lua-file	Hotbar/ISHotbar	HB require
+lua-call	ISHotbar:getThisSlotIndex, :savePosition, :reloadIcons, :setWidth, :removeItem(item,false), :attachItem(item,loc,index,def,false), :isInHotbar, :canBeAttached	ISHotbar.lua
+lua-field	ISHotbar.availableSlot, .attachedItems, .chr, .slotWidth	ISHotbar.lua
+lua-call	ISInventoryPaneContextMenu.onWearItems	client/ISUI/ISInventoryPaneContextMenu.lua:2850 (hoodie down, then ISWearClothing)
+lua-call	ISUnequipAction:new(chr, item, time)	shared/TimedActions/ISUnequipAction.lua:149; fromHotbar set false after new() so the face animation plays
+lua-field	ISUnequipAction.fromHotbar	set in new() from hotbar:isItemAttached; drives the attach animation in start()/perform()
+lua-call	ISTimedActionQueue.add, ISTimedActionQueue.queues[chr].queue
+lua-call	AttachedLocations.getGroup("Human"):getOrCreateLocation(name):setAttachmentName(id)	shared/NPCs/AttachedLocations.lua
+lua-call	syncItemFields(chr, item)	MP only, as ISAttachItemHotbar:perform
+
+## Java called from Lua
+java-call	ScriptManager:getAllItems(), getModelScript(name)
+java-call	Item:getBodyLocation(), getName(), DoParam("AttachmentType = ...")	(equalsIgnoreCase in Item.DoParam)
+java-call	instanceItem(Item)	sample item to read an AttachmentType set by another mod
+java-call	InventoryItem:getAttachmentType, getAttachedSlot, getStaticModel, getFullType, isBroken
+java-call	IsoGameCharacter:isEquippedClothing, isHandItem, getWornItems():getItemByIndex, getAttachedItem(location), getInventory():contains
+
+## Data
+data	ItemBodyLocation.MASK, MASK_EYES, MASK_FULL, FULL_HAT, HAT	eligible locations; HAT only when the item name contains "helmet"
+data	animset "holster left"	attach animation for the slot (AnimSets/player/actions/AttachItem_HolsterLeft.xml)
+
+## Assumptions
+assume	InventoryItem.attachmentType comes from the script item when an item is made or loaded (not saved)	Item.InstanceItem -> setAttachmentType; if saved per item, old items would keep no type
+assume	IsoGameCharacter.isEquipped(item) is true for worn clothing	ISHotbar:update then removes the hung model while worn; else a worn mask is also drawn on the neck
+assume	ModelManager draws an attached item only if getStaticModelException() is set	no eligible vanilla item has a StaticModel (checked 42.21.0), so hung items are invisible
+assume	IsoGameCharacter.setWornItem moves an exclusive worn item off (the swap finds it by comparing worn lists)
