@@ -25,9 +25,6 @@ local function addSlotDef()
 end
 addSlotDef()
 
--- the hotbar needs a location to attach to; nothing is drawn there (the items have no StaticModel)
-AttachedLocations.getGroup("Human"):getOrCreateLocation(NeckSlot.LOCATION):setAttachmentName("neckslot_neck")
-
 -- slot ------------------------------------------------------------------------------------
 
 local function neckSlotIndex(hotbar)

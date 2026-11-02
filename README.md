@@ -16,12 +16,14 @@ Items: everything worn on the mask, mask-and-eyes, full-mask or full-hat locatio
 
 ## Compatibility
 
-- Lua only. Single player; multiplayer untested.
+- Lua only. Single player and a local dedicated server tested. In multiplayer, install it on the server and every client.
 - Can be added to or removed from an existing save. When removed, the Neck slot disappears and a hung item goes back to the inventory.
 
 ## Testing
 
 `pzt run` (PZTestHarness) runs `tests/NeckSlot_Test.lua`: eligibility, the slot, hanging, the key, swapping, helmets, and that a cap is refused.
+
+`bash tools/mptest.sh` runs `tests/NeckSlot_MPTest.lua` against a local dedicated server (port 16361): hanging, the key, swapping and helmets, then a reconnect and a server restart, comparing each state with what the server reports.
 
 ## Support
 

@@ -1,8 +1,8 @@
 # NeckSlot: vanilla dependencies (format: _guide/README.md "9. 게임 업데이트 대응")
-# checked: 42.21.0 (pzt run 2026-10-30, 33 PASS)
+# checked: 42.21.0 (pzt run 2026-11-02, 33 PASS; tools/mptest.sh 2026-11-03, 101 PASS)
 #
 # Mod files (Contents/mods/NeckSlot/42/media/lua): IT = shared/NeckSlot_Items.lua,
-# HB = client/NeckSlot_Hotbar.lua. Vanilla paths are relative to media/lua.
+# HB = client/NeckSlot_Hotbar.lua, AL = shared/NPCs/NeckSlot_AttachedLocations.lua. Vanilla paths are relative to media/lua.
 #
 # Riskiest (break silently):
 #  1. ISHotbar:refresh drops slots no worn item provides (haveThisSlot(type, newSlots)); the always-on slot relies on it
@@ -26,7 +26,7 @@ lua-call	ISInventoryPaneContextMenu.onWearItems	client/ISUI/ISInventoryPaneConte
 lua-call	ISUnequipAction:new(chr, item, time)	shared/TimedActions/ISUnequipAction.lua:149; fromHotbar set false after new() so the face animation plays
 lua-field	ISUnequipAction.fromHotbar	set in new() from hotbar:isItemAttached; drives the attach animation in start()/perform()
 lua-call	ISTimedActionQueue.add, ISTimedActionQueue.queues[chr].queue
-lua-call	AttachedLocations.getGroup("Human"):getOrCreateLocation(name):setAttachmentName(id)	shared/NPCs/AttachedLocations.lua
+lua-call	AttachedLocations.getGroup("Human"):getOrCreateLocation(name):setAttachmentName(id)	AL; same call as vanilla shared/NPCs/AttachedLocations.lua
 lua-call	syncItemFields(chr, item)	MP only, as ISAttachItemHotbar:perform
 
 ## Java called from Lua
@@ -45,3 +45,4 @@ assume	InventoryItem.attachmentType comes from the script item when an item is m
 assume	IsoGameCharacter.isEquipped(item) is true for worn clothing	ISHotbar:update then removes the hung model while worn; else a worn mask is also drawn on the neck
 assume	ModelManager draws an attached item only if getStaticModelException() is set	no eligible vanilla item has a StaticModel (checked 42.21.0), so hung items are invisible
 assume	IsoGameCharacter.setWornItem moves an exclusive worn item off (the swap finds it by comparing worn lists)
+assume	GameCharacterAttachedItemPacket.processServer calls setAttachedItem(location, item), which throws if the server's "Human" group lacks the location	so the location is registered in shared; checked by bytecode and server log, 42.21
