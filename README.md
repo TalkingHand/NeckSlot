@@ -27,4 +27,4 @@ Items: everything worn on the mask, mask-and-eyes, full-mask or full-hat locatio
 
 ## Support
 
-If this mod helps you, you can support it via [PayPal](https://www.paypal.com/paypalme/TalkingHands619/3). It's optional; every feature stays free.
+If this mod helps you, you can support it via [Ko-fi](https://ko-fi.com/talkinghands2285) or [PayPal](https://www.paypal.com/paypalme/TalkingHands619/3). It's optional; every feature stays free.
